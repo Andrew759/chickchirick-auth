@@ -2,6 +2,7 @@ package factory
 
 import (
 	"chickchirick-auth/cmd/service"
+	"chickchirick-auth/internal/controller/c_controller"
 	"net/http"
 	//TODO: подумать - оставить или удалить профилировщик
 	_ "net/http/pprof"
@@ -9,23 +10,25 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func BuildAndServe(dbDecorator service.DBDecorator, redisDecorator service.RedisDecorator) {
+func BuildAndServe(dbDecorator *service.DBDecorator, redisDecorator *service.RedisDecorator) {
 	err := BuildServer(dbDecorator, redisDecorator)
 	if err != nil {
 		panic(err)
 	}
 }
 
-func BuildServer(dbDecorator service.DBDecorator, redisDecorator service.RedisDecorator) error {
-	r := gin.Default()
+func BuildServer(dbDecorator *service.DBDecorator, redisDecorator *service.RedisDecorator) error {
+	e := gin.Default()
 
-	r.GET("/ping", func(c *gin.Context) {
+	e.GET("/ping", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
 			"message": "pong",
 		})
 	})
 
-	err := r.Run()
+	InitAuthServer(e, &c_controller.DIContainer{DBDecorator: dbDecorator, RedisDecorator: redisDecorator})
+
+	err := e.Run()
 	if err != nil {
 		return err
 	}

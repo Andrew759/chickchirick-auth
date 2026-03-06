@@ -1,34 +1,27 @@
 package factory
 
 import (
-	"chickChirick-auth/internal/controller/c_controller"
-	internalService "chickChirick/internal/controller/service/auth"
-	"net/http"
+	"chickchirick-auth/internal/controller/c_controller"
+	internalService "chickchirick-auth/internal/controller/service/auth"
+
+	"github.com/gin-gonic/gin"
 )
 
-type AuthServer struct {
-	*http.ServeMux
-	c_controller.DIContainer
+type AuthServer struct{}
+
+func InitAuthServer(e *gin.Engine, aDIC *c_controller.DIContainer) {
+	authServer := AuthServer{}
+
+	authServer.initCodeService(e, aDIC)
+	authServer.initSessionService(e, aDIC)
+	authServer.initTokenService(e, aDIC)
 }
 
-func InitAuthServer(mux *http.ServeMux, abstractDiContainer c_controller.DIContainer) AuthServer {
-	authServer := AuthServer{
-		ServeMux:    mux,
-		DIContainer: abstractDiContainer,
-	}
-
-	authServer.initCodeService()
-	authServer.initSessionService()
-	authServer.initTokenService()
-
-	return authServer
-}
-
-func (as AuthServer) initCodeService() internalService.CodeController {
+func (as AuthServer) initCodeService(e *gin.Engine, aDIC *c_controller.DIContainer) internalService.CodeController {
 	codeService := internalService.CodeController{
 		Controller: c_controller.Controller{
-			ServeMux:     as.ServeMux,
-			Dependencies: as.DIContainer,
+			E:  e,
+			DI: aDIC,
 		},
 	}
 	codeService.HandleRequest()
@@ -36,11 +29,11 @@ func (as AuthServer) initCodeService() internalService.CodeController {
 	return codeService
 }
 
-func (as AuthServer) initSessionService() internalService.SessionController {
+func (as AuthServer) initSessionService(e *gin.Engine, aDIC *c_controller.DIContainer) internalService.SessionController {
 	sessionService := internalService.SessionController{
 		Controller: c_controller.Controller{
-			ServeMux:     as.ServeMux,
-			Dependencies: as.DIContainer,
+			E:  e,
+			DI: aDIC,
 		},
 	}
 	sessionService.HandleRequest()
@@ -48,11 +41,11 @@ func (as AuthServer) initSessionService() internalService.SessionController {
 	return sessionService
 }
 
-func (as AuthServer) initTokenService() internalService.TokenController {
+func (as AuthServer) initTokenService(e *gin.Engine, aDIC *c_controller.DIContainer) internalService.TokenController {
 	tokenService := internalService.TokenController{
 		Controller: c_controller.Controller{
-			ServeMux:     as.ServeMux,
-			Dependencies: as.DIContainer,
+			E:  e,
+			DI: aDIC,
 		},
 	}
 	tokenService.HandleRequest()

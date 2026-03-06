@@ -3,15 +3,16 @@ package service
 import (
 	"chickchirick-auth/cmd/config"
 	"fmt"
-	"github.com/redis/go-redis/v9"
 	"strconv"
+
+	"github.com/redis/go-redis/v9"
 )
 
 type RedisDecorator struct {
 	Client *redis.Client
 }
 
-func InitRedis(config config.RedisConfig) RedisDecorator {
+func InitRedis(config config.RedisConfig) *RedisDecorator {
 	client := redis.NewClient(&redis.Options{
 		Addr:     config.Host + ":" + strconv.Itoa(config.Port),
 		Username: config.User,
@@ -22,7 +23,7 @@ func InitRedis(config config.RedisConfig) RedisDecorator {
 		Client: client,
 	}
 
-	return redisClient
+	return &redisClient
 }
 
 func (rd RedisDecorator) RedisClose() {

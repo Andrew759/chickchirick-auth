@@ -1,9 +1,9 @@
 package auth
 
 import (
-	"chickChirick/internal/controller/c_controller"
 	"chickChirick/internal/controller/c_http"
 	code "chickChirick/internal/model/auth"
+	"chickchirick-auth/internal/controller/c_controller"
 	"encoding/json"
 	"errors"
 	"net/http"

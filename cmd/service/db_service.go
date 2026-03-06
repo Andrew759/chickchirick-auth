@@ -4,10 +4,11 @@ import (
 	"chickchirick-auth/cmd/config/dto"
 	"database/sql"
 	"fmt"
-	"gorm.io/driver/postgres"
-	"gorm.io/gorm"
 	"strconv"
 	"strings"
+
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
 )
 
 // DBDecorator TODO: отрефакторить. Выбрать имя без постфикса интерфейс. Сделать также во всём приложении
@@ -16,7 +17,7 @@ type DBDecorator struct {
 	NativeInterface *sql.DB
 }
 
-func InitORM(config dto.DataBaseConfigInterface) DBDecorator {
+func InitORM(config dto.DataBaseConfigInterface) *DBDecorator {
 	dsn := dsn(config)
 
 	ORM, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
@@ -34,7 +35,7 @@ func InitORM(config dto.DataBaseConfigInterface) DBDecorator {
 		NativeInterface: nativeDB,
 	}
 
-	return dbd
+	return &dbd
 }
 
 func dsn(config dto.DataBaseConfigInterface) string {

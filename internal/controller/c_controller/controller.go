@@ -1,20 +1,19 @@
 package c_controller
 
 import (
-	"chickChirick/cmd/service"
-	"net/http"
+	"chickchirick-auth/cmd/service"
 
 	"github.com/gin-gonic/gin"
 )
 
 type DIContainer struct {
-	DBDecorator    service.DBDecorator
-	RedisDecorator service.RedisDecorator
+	DBDecorator    *service.DBDecorator
+	RedisDecorator *service.RedisDecorator
 }
 
 type Controller struct {
-	E  gin.Engine
-	DI DIContainer
+	E  *gin.Engine
+	DI *DIContainer
 }
 
 type RequestHandler interface {

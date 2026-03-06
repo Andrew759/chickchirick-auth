@@ -1,12 +1,13 @@
 package auth
 
 import (
-	"chickChirick/internal/controller/c_controller"
-	"chickChirick/internal/controller/c_http"
-	token "chickChirick/internal/model/auth"
+	"chickchirick-auth/internal/controller/c_controller"
+	token "chickchirick-auth/internal/model/auth"
 	"encoding/json"
 	"errors"
 	"net/http"
+
+	"github.com/gin-gonic/gin"
 )
 
 type TokenController struct {
@@ -14,8 +15,8 @@ type TokenController struct {
 }
 
 func (tc *TokenController) HandleRequest() {
-	tc.Controller.ServeMux.HandleFunc("GET /tokens", func(w http.ResponseWriter, r *http.Request) {
-		tc.GetTokens(w)
+	tc.Controller.E.GET("/tokens", func(c *gin.Context) {
+		tc.GetTokens(c)
 	})
 
 	tc.Controller.ServeMux.HandleFunc("POST /token", func(w http.ResponseWriter, r *http.Request) {
@@ -35,8 +36,9 @@ func (tc *TokenController) HandleRequest() {
 	})
 }
 
-func (tc *TokenController) GetTokens(w http.ResponseWriter) {
-	tokens, err := token.GetTokens(tc.Controller.Dependencies.DBDecorator.GDB())
+func (tc *TokenController) GetTokens(c *gin.Context) {
+	c.
+		tokens, err := token.GetTokens(tc.Controller.DI.DBDecorator.GDB())
 	if err != nil {
 		c_http.NewResponse().SendError(w, err.Error(), http.StatusInternalServerError)
 		return
