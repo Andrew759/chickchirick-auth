@@ -37,9 +37,9 @@ func (tc *TokenController) HandleRequest() {
 }
 
 func (tc *TokenController) GetTokens(c *gin.Context) {
-	c.
-		tokens, err := token.GetTokens(tc.Controller.DI.DBDecorator.GDB())
+	tokens, err := token.GetTokens(tc.Controller.DI.DBDecorator.GDB())
 	if err != nil {
+		c.String()
 		c_http.NewResponse().SendError(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
