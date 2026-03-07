@@ -25,13 +25,13 @@ func (cc *CodeController) RegisterRoutes() {
 }
 
 func (cc *CodeController) GetCodes(c *gin.Context) {
-	codes, err := code.GetCodes(cc.Controller.DI.DBDecorator.GDB())
+	cds, err := code.GetCodes(cc.Controller.DI.DBDecorator.GDB())
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	c.JSON(http.StatusOK, codes)
+	c.JSON(http.StatusOK, cds)
 }
 
 func (cc *CodeController) GetCode(c *gin.Context) {
@@ -45,28 +45,28 @@ func (cc *CodeController) GetCode(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 	}
 
-	res, err := code.GetCodeById(cc.Controller.DI.DBDecorator.GDB(), iId)
+	cd, err := code.GetCodeById(cc.Controller.DI.DBDecorator.GDB(), iId)
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Code not found: " + err.Error()})
 		return
 	}
 
-	c.JSON(http.StatusOK, res)
+	c.JSON(http.StatusOK, cd)
 }
 
 func (cc *CodeController) CreateCode(c *gin.Context) {
-	var model code.Code
-	if err := c.ShouldBindJSON(&model); err != nil {
+	var cd code.Code
+	if err := c.ShouldBindJSON(&c); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid input: " + err.Error()})
 		return
 	}
 
-	if err := code.CreateCode(cc.Controller.DI.DBDecorator.GDB(), &model); err != nil {
+	if err := code.CreateCode(cc.Controller.DI.DBDecorator.GDB(), &cd); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create code: " + err.Error()})
 		return
 	}
 
-	c.JSON(http.StatusCreated, model)
+	c.JSON(http.StatusCreated, cd)
 }
 
 func (cc *CodeController) UpdateCode(c *gin.Context) {
@@ -76,13 +76,13 @@ func (cc *CodeController) UpdateCode(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 	}
 
-	var model code.Code
-	if err := c.ShouldBindJSON(&model); err != nil {
+	var cd code.Code
+	if err := c.ShouldBindJSON(&c); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid input: " + err.Error()})
 		return
 	}
 
-	err = code.UpdateCodeById(cc.Controller.DI.DBDecorator.GDB(), &model, iId)
+	err = code.UpdateCodeById(cc.Controller.DI.DBDecorator.GDB(), &cd, iId)
 	if err != nil {
 		if errors.Is(err, code.CodeNotFoundErr) {
 			c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
@@ -92,7 +92,7 @@ func (cc *CodeController) UpdateCode(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, model)
+	c.JSON(http.StatusOK, cd)
 }
 
 func (cc *CodeController) DeleteCode(c *gin.Context) {

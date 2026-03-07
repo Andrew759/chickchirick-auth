@@ -8,20 +8,16 @@ const (
 // environment
 const (
 	Enviroment = "ENVIRONMENT"
-	Dev        = "DEV"
-	Test       = "TEST"
-	Prod       = "PROD"
 )
 
 // database
 const (
-	DbHost           = "DB_HOST"
-	DbPort           = "DB_PORT"
-	DbName           = "DB_NAME"
-	DbUser           = "DB_USER"
-	DbPass           = "DB_PASS"
-	DbTimezone       = "DB_TIMEZONE"
-	DbMigrationPatch = "DB_MIGRATION_PATCH"
+	DbHost     = "DB_HOST"
+	DbPort     = "DB_PORT"
+	DbName     = "DB_NAME"
+	DbUser     = "DB_USER"
+	DbPass     = "DB_PASS"
+	DbTimezone = "DB_TIMEZONE"
 )
 
 // redis
