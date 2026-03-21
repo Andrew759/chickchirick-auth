@@ -11,10 +11,9 @@ import (
 	"gorm.io/gorm"
 )
 
-// DBDecorator TODO: отрефакторить. Выбрать имя без постфикса интерфейс. Сделать также во всём приложении
 type DBDecorator struct {
-	GormInterface   *gorm.DB
-	NativeInterface *sql.DB
+	Gorm   *gorm.DB
+	Native *sql.DB
 }
 
 func InitORM(config dto.DataBaseConfigInterface) *DBDecorator {
@@ -31,8 +30,8 @@ func InitORM(config dto.DataBaseConfigInterface) *DBDecorator {
 	}
 
 	dbd := DBDecorator{
-		GormInterface:   ORM,
-		NativeInterface: nativeDB,
+		Gorm:   ORM,
+		Native: nativeDB,
 	}
 
 	return &dbd
@@ -54,16 +53,16 @@ func dsn(config dto.DataBaseConfigInterface) string {
 }
 
 func (dbd DBDecorator) CloseDB() {
-	err := dbd.NativeInterface.Close()
+	err := dbd.Native.Close()
 	if err != nil {
 		panic(fmt.Errorf("db close error: %w", err))
 	}
 }
 
 func (dbd DBDecorator) GDB() *gorm.DB {
-	return dbd.GormInterface
+	return dbd.Gorm
 }
 
 func (dbd DBDecorator) NativeDB() *sql.DB {
-	return dbd.NativeInterface
+	return dbd.Native
 }

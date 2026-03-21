@@ -12,43 +12,30 @@ type AuthServer struct{}
 func InitAuthServer(e *gin.Engine, aDIC *c_controller.DIContainer) {
 	authServer := AuthServer{}
 
-	authServer.initCodeService(e, aDIC)
-	authServer.initSessionService(e, aDIC)
-	authServer.initTokenService(e, aDIC)
+	authServer.initAuthService(e, aDIC)
+	authServer.initUserService(e, aDIC)
 }
 
-func (as AuthServer) initCodeService(e *gin.Engine, aDIC *c_controller.DIContainer) internalService.CodeController {
-	codeService := internalService.CodeController{
+func (as AuthServer) initAuthService(e *gin.Engine, aDIC *c_controller.DIContainer) internalService.AuthController {
+	authService := internalService.AuthController{
 		Controller: c_controller.Controller{
 			E:  e,
 			DI: aDIC,
 		},
 	}
-	codeService.RegisterRoutes()
+	authService.RegisterRoutes()
 
-	return codeService
+	return authService
 }
 
-func (as AuthServer) initSessionService(e *gin.Engine, aDIC *c_controller.DIContainer) internalService.SessionController {
-	sessionService := internalService.SessionController{
+func (as AuthServer) initUserService(e *gin.Engine, aDIC *c_controller.DIContainer) internalService.UserController {
+	userService := internalService.UserController{
 		Controller: c_controller.Controller{
 			E:  e,
 			DI: aDIC,
 		},
 	}
-	sessionService.RegisterRoutes()
+	userService.RegisterRoutes()
 
-	return sessionService
-}
-
-func (as AuthServer) initTokenService(e *gin.Engine, aDIC *c_controller.DIContainer) internalService.TokenController {
-	tokenService := internalService.TokenController{
-		Controller: c_controller.Controller{
-			E:  e,
-			DI: aDIC,
-		},
-	}
-	tokenService.RegisterRoutes()
-
-	return tokenService
+	return userService
 }

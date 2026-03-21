@@ -1,12 +1,12 @@
 services:
-  nginx:
+  nginx-auth:
     build: ./build/dev/nginx
     ports:
       - '81:80'
     depends_on:
-      - api
+      - api-auth
     networks:
-      - backend
+      - backend-auth
 
   api-auth:
     build:
@@ -21,9 +21,9 @@ services:
     security_opt:
       - "seccomp=unconfined" # Отключает фильтрацию системных вызовов
     depends_on:
-      postgres:
+      postgres-auth:
         condition: service_healthy
     volumes:
       - .:/app
     networks:
-      - backend
+      - backend-auth

@@ -1,12 +1,12 @@
 services:
-  nginx:
+  nginx-auth:
     build: ./build/automated/nginx
     ports:
       - '81:80'
     depends_on:
       - api-auth-automated
     networks:
-      - backend
+      - backend-auth
 
   api-auth-automated:
     build:
@@ -18,14 +18,14 @@ services:
     ports:
       - "8081:8080"
     depends_on:
-      postgres-automated:
+      postgres-auth-automated:
         condition: service_healthy
     # volumes:
     #   - .:/app
     networks:
-      - backend
+      - backend-auth
 
-  postgres-automated:
+  postgres-auth-automated:
     image: postgres:17.2
     container_name: postgres-automated
     hostname: postgres-automated
@@ -36,7 +36,7 @@ services:
     ports:
       - ${DB_PORT}:${DB_INTERNAL_PORT}
     networks:
-      - backend
+      - backend-auth
     volumes:
       - db_data_automated:/var/lib/postgresql/data
     healthcheck:
@@ -53,12 +53,14 @@ services:
 #      REDIS_USER: redis
 #      REDIS_USER_PASSWORD: redispass
 #    ports:
-#      - "6385:6383"
+#      - "6385:6379"
 #    volumes:
 #      - redis_data_automated:/data
+#    networks:
+#      - backend-auth
 
 networks:
-  backend:
+  backend-auth:
 
 volumes:
   db_data_automated:

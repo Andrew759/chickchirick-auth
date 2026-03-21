@@ -1,26 +1,4 @@
 services:
-  nginx-auth:
-    build: ./build/prod/nginx
-    ports:
-      - '81:80'
-    depends_on:
-      - api-auth
-    networks:
-      - backend-auth
-  api-auth:
-    build:
-      context: .
-      dockerfile: ./build/prod/Dockerfile
-    ports:
-      - "8081:8080"
-    depends_on:
-      postgres-auth:
-        condition: service_healthy
-    volumes:
-      - .:/app
-    networks:
-      - backend-auth
-
   redis-auth:
     image: redis:latest
     environment:
@@ -28,6 +6,8 @@ services:
       REDIS_USER_PASSWORD: ${REDIS_PASSWORD}
     ports:
       - ${REDIS_PORT}:${REDIS_INTERNAL_PORT}
+    volumes:
+      - redis_data_auth:/data
     networks:
       - backend-auth
 
@@ -41,6 +21,8 @@ services:
       - ${DB_PORT}:${DB_INTERNAL_PORT}
     networks:
       - backend-auth
+    volumes:
+      - db_data_auth:/var/lib/postgresql/data
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -U ${DB_USER}" ]
       interval: 5s
@@ -49,3 +31,7 @@ services:
 
 networks:
   backend-auth:
+
+volumes:
+  db_data_auth:
+  redis_data_auth:

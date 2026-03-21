@@ -15,8 +15,8 @@ type RedisDecorator struct {
 func InitRedis(config config.RedisConfig) *RedisDecorator {
 	client := redis.NewClient(&redis.Options{
 		Addr:     config.Host + ":" + strconv.Itoa(config.Port),
-		Username: config.User,
 		Password: config.Password,
+		DB:       config.Db,
 	})
 
 	redisClient := RedisDecorator{

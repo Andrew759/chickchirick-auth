@@ -23,6 +23,7 @@ type RedisConfig struct {
 	Port     int
 	User     string
 	Password string
+	Db       int
 }
 
 func (c AppConfiguration) NewAppConfiguration() AppConfiguration {
@@ -32,9 +33,10 @@ func (c AppConfiguration) NewAppConfiguration() AppConfiguration {
 		DatabaseConfig: PrepareDatabaseConfig(),
 		RedisConfig: RedisConfig{
 			Host:     viper.GetString(globalConfig.RedisHost),
-			Port:     viper.GetInt(globalConfig.RedisPort),
+			Port:     viper.GetInt(globalConfig.RedisInternalPort),
 			User:     viper.GetString(globalConfig.RedisUser),
 			Password: viper.GetString(globalConfig.RedisPassword),
+			Db:       viper.GetInt(globalConfig.RedisDB),
 		},
 	}
 }
@@ -43,7 +45,7 @@ func PrepareDatabaseConfig() dto.DatabaseConfig {
 	dbc := dto.DatabaseConfig{}
 
 	dbc.SetHost(viper.GetString(globalConfig.DbHost))
-	dbc.SetPort(viper.GetInt(globalConfig.DbPort))
+	dbc.SetPort(viper.GetInt(globalConfig.DbInternalPort))
 	dbc.SetName(viper.GetString(globalConfig.DbName))
 	dbc.SetUser(viper.GetString(globalConfig.DbUser))
 	dbc.SetPassword(viper.GetString(globalConfig.DbPass))
