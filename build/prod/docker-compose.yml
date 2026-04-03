@@ -2,7 +2,7 @@ services:
   nginx-auth:
     build: ./build/prod/nginx
     ports:
-      - '81:80'
+      - '82:80'
     depends_on:
       - api-auth
     networks:
@@ -12,7 +12,7 @@ services:
       context: .
       dockerfile: ./build/prod/Dockerfile
     ports:
-      - "8081:8080"
+      - "8082:8080"
     depends_on:
       postgres-auth:
         condition: service_healthy
@@ -42,7 +42,7 @@ services:
     networks:
       - backend-auth
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U ${DB_USER}" ]
+      test: [ "CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}" ]
       interval: 5s
       timeout: 3s
       retries: 5

@@ -3,6 +3,7 @@ package chirik_config
 // server
 const (
 	ServerUrl = "SERVER_URL"
+	UserApp   = "USER_APP"
 )
 
 // environment

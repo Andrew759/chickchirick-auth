@@ -5,10 +5,14 @@ import (
 	token "chickchirick-auth/internal/model/auth"
 	"chickchirick-auth/internal/request"
 	"chickchirick-auth/internal/service"
+	"chickchirick-auth/pkg/chirik_config"
 	"errors"
+	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/golang-jwt/jwt/v5"
+	"github.com/spf13/viper"
 )
 
 type AuthController struct {
@@ -18,15 +22,18 @@ type AuthController struct {
 func (ac *AuthController) RegisterRoutes() {
 	e := ac.Controller.E
 
-	e.POST("/auth/login", ac.Login)
-	e.POST("/auth/refresh", ac.RefreshToken)
-	e.POST("/auth/logout", ac.Logout)
+	group := e.Group("/auth")
+
+	group.POST("/login", ac.Login)
+	group.POST("/refresh", ac.RefreshToken)
+	group.POST("/logout", ac.Logout)
+	group.GET("/validate", ac.ValidateToken)
 }
 
 func (ac *AuthController) Login(c *gin.Context) {
 	var ctr request.CreateTokenRequest
 	if err := c.ShouldBindJSON(&ctr); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid input"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid input"})
 		return
 	}
 
@@ -35,7 +42,7 @@ func (ac *AuthController) Login(c *gin.Context) {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 		return
 	} else if err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid credentials"})
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid credentials"})
 		return
 	}
 
@@ -47,19 +54,19 @@ func (ac *AuthController) Login(c *gin.Context) {
 
 	ac.setTokenCookies(c, at.Token, rt.Token, int(at.Lt.Seconds()), int(rt.Lt.Seconds()))
 
-	c.JSON(http.StatusOK, gin.H{"payload": "Successfully logged in"})
+	c.JSON(http.StatusOK, gin.H{"payload": "successfully logged in"})
 }
 
 func (ac *AuthController) RefreshToken(c *gin.Context) {
 	oldRtStr, err := c.Cookie("refresh_token")
 	if err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Refresh token missing"})
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "refresh token missing"})
 		return
 	}
 
 	at, rt, err := service.RefreshToken(c.Request.Context(), *ac.Controller.DI.RedisDecorator, oldRtStr)
 	if err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Token expired or invalid"})
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "token expired or invalid"})
 		return
 	}
 
@@ -78,7 +85,7 @@ func (ac *AuthController) Logout(c *gin.Context) {
 	c.SetCookie("access_token", "", -1, "/", "", false, true)
 	c.SetCookie("refresh_token", "", -1, "/auth/refresh", "", false, true)
 
-	c.JSON(http.StatusOK, gin.H{"message": "Logged out"})
+	c.JSON(http.StatusOK, gin.H{"payload": "Logged out"})
 }
 
 func (ac *AuthController) setTokenCookies(c *gin.Context, at, rt string, atMaxAge, rtMaxAge int) {
@@ -86,4 +93,41 @@ func (ac *AuthController) setTokenCookies(c *gin.Context, at, rt string, atMaxAg
 
 	//Refresh Token доступен только по пути /auth/refresh
 	c.SetCookie("refresh_token", rt, rtMaxAge, "/auth/refresh", "", false, true)
+}
+
+// ValidateToken проверяет токен из других микросервисов
+func (ac *AuthController) ValidateToken(c *gin.Context) {
+	tokenStr, err := c.Cookie("access_token")
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "token not found"})
+		return
+	}
+
+	if tokenStr == "" {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid token"})
+		return
+	}
+
+	claims := &service.Claims{}
+	t, err := jwt.ParseWithClaims(tokenStr, claims, func(token *jwt.Token) (interface{}, error) {
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
+		}
+		return []byte(viper.GetString(chirik_config.SecretKey)), nil
+	})
+
+	if err != nil || !t.Valid {
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"valid": false,
+			"error": "invalid token",
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"payload": gin.H{
+			"valid":     true,
+			"user_uuid": claims.UserUuid,
+		},
+	})
 }

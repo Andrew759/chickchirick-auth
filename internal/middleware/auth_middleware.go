@@ -1,8 +1,10 @@
 package middleware
 
 import (
+	"chickchirick-auth/internal/service"
+	"chickchirick-auth/pkg/chirik_config"
+	"fmt"
 	"net/http"
-	"strings"
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
@@ -11,29 +13,30 @@ import (
 
 func AuthMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		authHeader := c.GetHeader("Authorization")
-		if authHeader == "" {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "Authorization header is missing"})
+		tokenStr, err := c.Cookie("access_token")
+		if err != nil {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Access token missing"})
 			c.Abort()
 			return
 		}
 
-		tokenS := strings.TrimPrefix(authHeader, "Bearer ")
+		token, err := jwt.ParseWithClaims(tokenStr, &service.Claims{}, func(token *jwt.Token) (interface{}, error) {
+			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+				return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
+			}
 
-		token, err := jwt.Parse(tokenS, func(token *jwt.Token) (interface{}, error) {
-			return []byte(viper.GetString("SECRET_KEY")), nil
+			return []byte(viper.GetString(chirik_config.SecretKey)), nil
 		})
 
 		if err != nil || !token.Valid {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid or expired token"})
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid or expired access token"})
 			c.Abort()
 			return
 		}
 
 		//TODO: возможно не потребуется
-		//Сохранение данных в контекст Gin, чтобы получать доступ к ним в контроллерах
-		if claims, ok := token.Claims.(jwt.MapClaims); ok {
-			c.Set("uuid", claims["sub"])
+		if claims, ok := token.Claims.(*service.Claims); ok {
+			c.Set("user_uuid", claims.UserUuid)
 		}
 
 		c.Next()

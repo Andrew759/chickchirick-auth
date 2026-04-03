@@ -46,12 +46,12 @@ func CreateUser(db *gorm.DB, u *User) error {
 
 func GetUserByUuidAndPass(db *gorm.DB, uuid, password string) (User, error) {
 	var user User
-	passHash, err := passwordHash(password)
+
+	result := db.Where("user_uuid = ?", uuid).First(&user)
+	err := bcrypt.CompareHashAndPassword([]byte(*user.Password), []byte(password))
 	if err != nil {
 		return user, err
 	}
-
-	result := db.Where("user_uuid = ? and password =?", uuid, passHash).First(&user)
 
 	if result.Error != nil && errors.Is(result.Error, gorm.ErrRecordNotFound) {
 		return user, UserNotFoundErr

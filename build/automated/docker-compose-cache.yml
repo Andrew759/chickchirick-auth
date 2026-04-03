@@ -2,7 +2,7 @@ services:
   nginx-auth:
     build: ./build/automated/nginx
     ports:
-      - '81:80'
+      - '82:80'
     depends_on:
       - api-auth-automated
     networks:
@@ -16,7 +16,7 @@ services:
     environment:
       - DOCKER_BUILDKIT=1
     ports:
-      - "8081:8080"
+      - "8082:8080"
     depends_on:
       postgres-auth-automated:
         condition: service_healthy
@@ -40,7 +40,7 @@ services:
     volumes:
       - db_data_automated:/var/lib/postgresql/data
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U pguser_test" ]
+      test: [ "CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}" ]
       interval: 5s
       timeout: 3s
       retries: 5

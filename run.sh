@@ -9,16 +9,14 @@ fi
 echo "Выберите окружение:"
 echo "1) prod"
 echo "2) dev"
-echo "4) automated"
-echo "5) automated-cache-only"
+echo "3) automated-cache-only"
 
 read -p "Введите соответствующий ему номер (1-5): " choice
 
 case $choice in
   1) C_FILE_PATH="build/prod/docker-compose.yml" ;;
   2) C_FILE_PATH="build/dev/docker-compose.yml" ;;
-  3) C_FILE_PATH="build/automated/docker-compose.yml" ;;
-  4) C_FILE_PATH="build/automated/docker-compose-cache.yml" ;;
+  3) C_FILE_PATH="build/automated/docker-compose-cache.yml" ;;
   *) echo "Неверный номер окружения"; exit 1 ;;
 esac
 
@@ -45,8 +43,7 @@ case $command in
 esac
 
 BASE_COMPOSE="docker-compose.yml"
-if [ "$C_FILE_PATH" = "build/automated/docker-compose.yml" ] || \
-   [ "$C_FILE_PATH" = "build/automated/docker-compose-cache.yml" ]; then
+if [ "$C_FILE_PATH" = "build/automated/docker-compose-cache.yml" ]; then
     IS_AUTOMATED_TEST_OPERATION=true
 else
     IS_AUTOMATED_TEST_OPERATION=false
@@ -56,8 +53,6 @@ if [ "$COMMAND" = "build_no_cache" ]; then
   if [ "$C_FILE_PATH" = "build/automated/docker-compose-cache.yml" ]; then
     echo "Операция запрещена"
     exit 1
-  elif [ "$C_FILE_PATH" = "build/automated/docker-compose.yml" ]; then
-    docker compose -f docker-compose-automated.yml -f "$C_FILE_PATH" build --no-cache
   else
     docker compose -f "$BASE_COMPOSE" -f "$C_FILE_PATH" build --no-cache
   fi

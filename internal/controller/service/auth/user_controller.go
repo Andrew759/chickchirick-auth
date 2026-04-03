@@ -2,7 +2,6 @@ package auth
 
 import (
 	"chickchirick-auth/internal/controller/c_controller"
-	"chickchirick-auth/internal/middleware"
 	user "chickchirick-auth/internal/model/auth"
 	"chickchirick-auth/internal/request"
 	"chickchirick-auth/internal/service"
@@ -21,10 +20,10 @@ type UserController struct {
 func (uc *UserController) RegisterRoutes() {
 	e := uc.Controller.E
 
-	protectedGroup := e.Group("/user")
-	protectedGroup.Use(middleware.AuthMiddleware())
-	protectedGroup.POST("/login", uc.GetUser)
-	protectedGroup.POST("/create", uc.CreateUser)
+	group := e.Group("/user")
+	//group.Use(middleware.AuthMiddleware())
+	group.POST("/login", uc.GetUser)
+	group.POST("/create", uc.CreateUser)
 }
 
 func (uc *UserController) GetUser(c *gin.Context) {

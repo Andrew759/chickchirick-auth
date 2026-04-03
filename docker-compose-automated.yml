@@ -1,0 +1,5 @@
+# This is the base/root compose file
+# It defines no services itself, but serves as a foundation
+version: '3.9'
+
+services: {}

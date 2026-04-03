@@ -2,20 +2,21 @@ services:
   nginx-auth:
     build: ./build/dev/nginx
     ports:
-      - '81:80'
+      - '82:80'
     depends_on:
       - api-auth
     networks:
       - backend-auth
+      - chickchirick-shared-network
 
   api-auth:
     build:
       context: .
       dockerfile: ./build/dev/Dockerfile
     ports:
-      - "8081:8080"
-      - "40000:40000" # Порт для подключения IDE к отладчику
-      - "6060:6060" #Порт трассировщика
+      - "8082:8080"
+      - "40001:40000" # Порт для подключения IDE к отладчику
+      - "6061:6060" #Порт трассировщика
     cap_add:
       - SYS_PTRACE # Разрешает Delve управлять процессом
     security_opt:
@@ -27,3 +28,4 @@ services:
       - .:/app
     networks:
       - backend-auth
+      - chickchirick-shared-network
