@@ -2,7 +2,7 @@ package config
 
 import (
 	"chickchirick-auth/cmd/config/dto"
-	globalConfig "chickchirick-auth/pkg/chirik_config"
+	globalConfig "chickchirick-auth/pkg/chirick_config"
 
 	"github.com/spf13/viper"
 )

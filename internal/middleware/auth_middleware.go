@@ -2,7 +2,7 @@ package middleware
 
 import (
 	"chickchirick-auth/internal/service"
-	"chickchirick-auth/pkg/chirik_config"
+	"chickchirick-auth/pkg/chirick_config"
 	"fmt"
 	"net/http"
 
@@ -25,7 +25,7 @@ func AuthMiddleware() gin.HandlerFunc {
 				return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
 			}
 
-			return []byte(viper.GetString(chirik_config.SecretKey)), nil
+			return []byte(viper.GetString(chirick_config.SecretKey)), nil
 		})
 
 		if err != nil || !token.Valid {

@@ -3,7 +3,7 @@ package factory
 import (
 	"chickchirick-auth/cmd/service"
 	"chickchirick-auth/internal/controller/c_controller"
-	"chickchirick-auth/pkg/chirik_config"
+	"chickchirick-auth/pkg/chirick_config"
 
 	//TODO: подумать - оставить или удалить профилировщик
 	_ "net/http/pprof"
@@ -25,7 +25,7 @@ func BuildServer(dbDecorator *service.DBDecorator, redisDecorator *service.Redis
 
 	//TODO: доработать CORS
 	config := cors.DefaultConfig()
-	config.AllowOrigins = []string{viper.GetString(chirik_config.UserApp)}
+	config.AllowOrigins = []string{viper.GetString(chirick_config.UserApp)}
 
 	e.Use(cors.New(config))
 

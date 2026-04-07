@@ -5,7 +5,7 @@ import (
 	token "chickchirick-auth/internal/model/auth"
 	"chickchirick-auth/internal/request"
 	"chickchirick-auth/internal/service"
-	"chickchirick-auth/pkg/chirik_config"
+	"chickchirick-auth/pkg/chirick_config"
 	"errors"
 	"fmt"
 	"net/http"
@@ -113,7 +113,7 @@ func (ac *AuthController) ValidateToken(c *gin.Context) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
 		}
-		return []byte(viper.GetString(chirik_config.SecretKey)), nil
+		return []byte(viper.GetString(chirick_config.SecretKey)), nil
 	})
 
 	if err != nil || !t.Valid {

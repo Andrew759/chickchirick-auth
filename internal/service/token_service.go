@@ -3,7 +3,7 @@ package service
 import (
 	"chickchirick-auth/cmd/service"
 	"chickchirick-auth/internal/model/dto"
-	"chickchirick-auth/pkg/chirik_config"
+	"chickchirick-auth/pkg/chirick_config"
 	"context"
 	"errors"
 	"time"
@@ -38,7 +38,7 @@ func CreateTokens(ctx context.Context, redisDec service.RedisDecorator, userUuid
 	}
 
 	//Сохраняет JTI в Redis. Ключ — JTI, значение — UserUUID.
-	err = redisDec.Client.Set(ctx, jti, userUuid, viper.GetDuration(chirik_config.RefreshTokenLT)).Err()
+	err = redisDec.Client.Set(ctx, jti, userUuid, viper.GetDuration(chirick_config.RefreshTokenLT)).Err()
 	if err != nil {
 		return dto.AccessToken{}, dto.RefreshToken{}, err
 	}
@@ -46,11 +46,11 @@ func CreateTokens(ctx context.Context, redisDec service.RedisDecorator, userUuid
 	return dto.AccessToken{
 			UserUuid: userUuid,
 			Token:    atStr,
-			Lt:       viper.GetDuration(chirik_config.AccessTokenLT),
+			Lt:       viper.GetDuration(chirick_config.AccessTokenLT),
 		}, dto.RefreshToken{
 			UserUuid: userUuid,
 			Token:    rtStr,
-			Lt:       viper.GetDuration(chirik_config.RefreshTokenLT),
+			Lt:       viper.GetDuration(chirick_config.RefreshTokenLT),
 		}, nil
 }
 
@@ -58,7 +58,7 @@ func CreateTokens(ctx context.Context, redisDec service.RedisDecorator, userUuid
 func RefreshToken(ctx context.Context, redisDec service.RedisDecorator, refreshTokenStr string) (dto.AccessToken, dto.RefreshToken, error) {
 	//Парсинг пришедшего токена
 	token, err := jwt.ParseWithClaims(refreshTokenStr, &Claims{}, func(t *jwt.Token) (interface{}, error) {
-		return []byte(viper.GetString(chirik_config.SecretKey)), nil
+		return []byte(viper.GetString(chirick_config.SecretKey)), nil
 	})
 
 	if err != nil || !token.Valid {
@@ -87,10 +87,10 @@ func createAccessToken(userUuid string) (string, error) {
 		RegisteredClaims: jwt.RegisteredClaims{
 			Issuer:    ISS,
 			Subject:   userUuid,
-			ExpiresAt: jwt.NewNumericDate(time.Now().Add(viper.GetDuration(chirik_config.AccessTokenLT))),
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(viper.GetDuration(chirick_config.AccessTokenLT))),
 			IssuedAt:  jwt.NewNumericDate(time.Now()),
 		},
-	}).SignedString([]byte(viper.GetString(chirik_config.SecretKey)))
+	}).SignedString([]byte(viper.GetString(chirick_config.SecretKey)))
 }
 
 // createRefreshToken возвращает сам токен и его внутренний ID (JTI)
@@ -102,10 +102,10 @@ func createRefreshToken(userUuid string) (string, string, error) {
 			ID:        jti,
 			Issuer:    ISS,
 			Subject:   userUuid,
-			ExpiresAt: jwt.NewNumericDate(time.Now().Add(viper.GetDuration(chirik_config.RefreshTokenLT))),
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(viper.GetDuration(chirick_config.RefreshTokenLT))),
 			IssuedAt:  jwt.NewNumericDate(time.Now()),
 		},
-	}).SignedString([]byte(viper.GetString(chirik_config.SecretKey)))
+	}).SignedString([]byte(viper.GetString(chirick_config.SecretKey)))
 
 	return token, jti, err
 }
@@ -113,7 +113,7 @@ func createRefreshToken(userUuid string) (string, string, error) {
 // Logout удаляет токен из Redis
 func Logout(ctx context.Context, redisDec service.RedisDecorator, refreshTokenStr string) error {
 	token, _ := jwt.ParseWithClaims(refreshTokenStr, &Claims{}, func(t *jwt.Token) (interface{}, error) {
-		return []byte(viper.GetString(chirik_config.SecretKey)), nil
+		return []byte(viper.GetString(chirick_config.SecretKey)), nil
 	})
 
 	if claims, ok := token.Claims.(*Claims); ok {
