@@ -19,5 +19,10 @@ func main() {
 
 	//TODO: если не потребуется - удалить
 	//httpClient := factory.InitHttpClient()
+
+	//http сервер
 	factory.BuildAndServe(dbDecorator, redisDecorator)
+
+	//grpc сервер
+	factory.BuildAndServeGRPC()
 }
