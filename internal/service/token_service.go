@@ -38,7 +38,7 @@ func CreateTokens(ctx context.Context, redisDec service.RedisDecorator, userUuid
 	}
 
 	//Сохраняет JTI в Redis. Ключ — JTI, значение — UserUUID.
-	err = redisDec.Client.Set(ctx, jti, userUuid, viper.GetDuration("REFRESH_TOKEN_LT")).Err()
+	err = redisDec.Client.Set(ctx, jti, userUuid, viper.GetDuration(chirik_config.RefreshTokenLT)).Err()
 	if err != nil {
 		return dto.AccessToken{}, dto.RefreshToken{}, err
 	}
@@ -46,11 +46,11 @@ func CreateTokens(ctx context.Context, redisDec service.RedisDecorator, userUuid
 	return dto.AccessToken{
 			UserUuid: userUuid,
 			Token:    atStr,
-			Lt:       viper.GetDuration("ACCESS_TOKEN_LT"),
+			Lt:       viper.GetDuration(chirik_config.AccessTokenLT),
 		}, dto.RefreshToken{
 			UserUuid: userUuid,
 			Token:    rtStr,
-			Lt:       viper.GetDuration("REFRESH_TOKEN_LT"),
+			Lt:       viper.GetDuration(chirik_config.RefreshTokenLT),
 		}, nil
 }
 
@@ -87,7 +87,7 @@ func createAccessToken(userUuid string) (string, error) {
 		RegisteredClaims: jwt.RegisteredClaims{
 			Issuer:    ISS,
 			Subject:   userUuid,
-			ExpiresAt: jwt.NewNumericDate(time.Now().Add(viper.GetDuration("ACCESS_TOKEN_LT"))),
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(viper.GetDuration(chirik_config.AccessTokenLT))),
 			IssuedAt:  jwt.NewNumericDate(time.Now()),
 		},
 	}).SignedString([]byte(viper.GetString(chirik_config.SecretKey)))
@@ -102,7 +102,7 @@ func createRefreshToken(userUuid string) (string, string, error) {
 			ID:        jti,
 			Issuer:    ISS,
 			Subject:   userUuid,
-			ExpiresAt: jwt.NewNumericDate(time.Now().Add(viper.GetDuration("REFRESH_TOKEN_LT"))),
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(viper.GetDuration(chirik_config.RefreshTokenLT))),
 			IssuedAt:  jwt.NewNumericDate(time.Now()),
 		},
 	}).SignedString([]byte(viper.GetString(chirik_config.SecretKey)))

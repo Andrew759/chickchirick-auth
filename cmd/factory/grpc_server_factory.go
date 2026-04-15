@@ -3,26 +3,33 @@ package factory
 import (
 	internalGrpc "chickchirick-auth/internal/controller/service/grpc"
 	authGRPC "chickchirick-auth/internal/gen/auth"
+	"chickchirick-auth/pkg/chirik_config"
+	"errors"
 	"fmt"
 	"log"
 	"net"
 
 	_ "net/http/pprof"
 
+	"github.com/spf13/viper"
 	"google.golang.org/grpc"
 )
 
-func BuildAndServeGRPC() {
-	lis, err := net.Listen("tcp", ":50051")
+func BuildAndServeGRPC() *grpc.Server {
+	lis, err := net.Listen("tcp", viper.GetString(chirik_config.ProtobufServer))
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}
 
-	s := grpc.NewServer()
-	authGRPC.RegisterAuthServiceServer(s, &internalGrpc.AuthGRPCController{})
+	grpcServer := grpc.NewServer()
+	authGRPC.RegisterAuthServiceServer(grpcServer, &internalGrpc.AuthGRPCController{})
 
-	fmt.Println("Auth gRPC server is running on :50051")
-	if err := s.Serve(lis); err != nil {
-		log.Fatalf("failed to serve: %v", err)
-	}
+	go func() {
+		fmt.Printf("Auth gRPC server is running on %s\n", viper.GetString(chirik_config.ProtobufServer))
+		if err := grpcServer.Serve(lis); err != nil && !errors.Is(err, grpc.ErrServerStopped) {
+			log.Fatalf("failed to serve gRPC: %v", err)
+		}
+	}()
+
+	return grpcServer
 }

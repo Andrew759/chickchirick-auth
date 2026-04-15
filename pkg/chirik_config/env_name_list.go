@@ -34,8 +34,11 @@ const (
 
 // token
 const (
-	SecretKey = "SECRET_KEY"
-	//TODO: удалить, если не будет использоваться
-	//AccessTokenLT = "ACCESS_TOKEN_LT"
-	//RefreshTokenLT = "REFRESH_TOKEN_LT"
+	SecretKey      = "SECRET_KEY"
+	AccessTokenLT  = "ACCESS_TOKEN_LT"
+	RefreshTokenLT = "REFRESH_TOKEN_LT"
+)
+
+const (
+	ProtobufServer = "PROTOBUF_SERVER"
 )
