@@ -1,4 +1,4 @@
-package chirick_config
+package chirik_config
 
 // server
 const (
@@ -37,4 +37,8 @@ const (
 	SecretKey      = "SECRET_KEY"
 	AccessTokenLT  = "ACCESS_TOKEN_LT"
 	RefreshTokenLT = "REFRESH_TOKEN_LT"
+)
+
+const (
+	ProtobufServer = "PROTOBUF_SERVER"
 )

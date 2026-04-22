@@ -13,11 +13,8 @@ import (
 	"github.com/spf13/viper"
 )
 
-func BuildAndServe(dbDecorator *service.DBDecorator, redisDecorator *service.RedisDecorator) {
-	err := BuildServer(dbDecorator, redisDecorator)
-	if err != nil {
-		panic(err)
-	}
+func BuildAndServe(dbDecorator *service.DBDecorator, redisDecorator *service.RedisDecorator) error {
+	return BuildServer(dbDecorator, redisDecorator)
 }
 
 func BuildServer(dbDecorator *service.DBDecorator, redisDecorator *service.RedisDecorator) error {
