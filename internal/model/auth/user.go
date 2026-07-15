@@ -1,6 +1,7 @@
 package auth
 
 import (
+	"context"
 	"errors"
 
 	"golang.org/x/crypto/bcrypt"
@@ -26,9 +27,11 @@ func passwordHash(password string) (string, error) {
 	return string(passHash), nil
 }
 
-func CreateUser(db *gorm.DB, u *User) error {
+func CreateUser(ctx context.Context, db *gorm.DB, u *User) error {
 	var existingUser User
-	err := db.Where("user_uuid = ?", u.UserUuid).First(&existingUser).Error
+	tx := db.WithContext(ctx)
+
+	err := tx.Where("user_uuid = ?", u.UserUuid).First(&existingUser).Error
 	if err == nil && existingUser.UserUuid == u.UserUuid {
 		return UserAlreadyExistsErr
 	} else if !errors.Is(err, gorm.ErrRecordNotFound) {
@@ -41,21 +44,25 @@ func CreateUser(db *gorm.DB, u *User) error {
 	}
 
 	u.Password = &password
-	return db.Create(u).Error
+	return tx.Create(u).Error
 }
 
-func GetUserByUuidAndPass(db *gorm.DB, uuid, password string) (User, error) {
+func GetUserByUuidAndPass(ctx context.Context, db *gorm.DB, uuid, password string) (User, error) {
 	var user User
+	tx := db.WithContext(ctx)
 
-	result := db.Where("user_uuid = ?", uuid).First(&user)
+	result := tx.Where("user_uuid = ?", uuid).First(&user)
+	if result.Error != nil {
+		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+			return user, UserNotFoundErr
+		}
+		return user, result.Error
+	}
+
 	err := bcrypt.CompareHashAndPassword([]byte(*user.Password), []byte(password))
 	if err != nil {
 		return user, err
 	}
 
-	if result.Error != nil && errors.Is(result.Error, gorm.ErrRecordNotFound) {
-		return user, UserNotFoundErr
-	}
-
-	return user, result.Error
+	return user, nil
 }

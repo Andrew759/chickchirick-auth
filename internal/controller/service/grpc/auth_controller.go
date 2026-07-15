@@ -6,7 +6,7 @@ import (
 	"fmt"
 
 	"chickchirick-auth/internal/service"
-	"chickchirick-auth/pkg/chirik_config"
+	"chickchirick-auth/pkg/chirick_config"
 
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/spf13/viper"
@@ -27,7 +27,7 @@ func (s *AuthGRPCController) ValidateToken(ctx context.Context, req *authGRPC.Va
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
 		}
-		return []byte(viper.GetString(chirik_config.SecretKey)), nil
+		return []byte(viper.GetString(chirick_config.SecretKey)), nil
 	})
 
 	if err != nil || !t.Valid {

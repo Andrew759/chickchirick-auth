@@ -33,7 +33,9 @@ func (uc *UserController) GetUser(c *gin.Context) {
 		return
 	}
 
+	ctx := c.Request.Context()
 	u, err := user.GetUserByUuidAndPass(
+		ctx,
 		uc.Controller.DI.DBDecorator.GDB(),
 		req.UserUuid,
 		req.Password,
@@ -57,7 +59,8 @@ func (uc *UserController) CreateUser(c *gin.Context) {
 		return
 	}
 
-	if err := user.CreateUser(uc.Controller.DI.DBDecorator.GDB(), &u); err != nil &&
+	ctx := c.Request.Context()
+	if err := user.CreateUser(ctx, uc.Controller.DI.DBDecorator.GDB(), &u); err != nil &&
 		errors.Is(err, user.UserAlreadyExistsErr) {
 		c.JSON(http.StatusConflict, gin.H{"error": err.Error()})
 		return
@@ -66,11 +69,10 @@ func (uc *UserController) CreateUser(c *gin.Context) {
 		return
 	}
 
-	ctx := context.Background()
-	ctx, cancel := context.WithTimeout(ctx, 30*time.Minute)
+	tokenCtx, cancel := context.WithTimeout(ctx, 30*time.Minute)
 	defer cancel()
 
-	at, rt, err := service.CreateTokens(ctx, *uc.Controller.DI.RedisDecorator, u.UserUuid)
+	at, rt, err := service.CreateTokens(tokenCtx, *uc.Controller.DI.RedisDecorator, u.UserUuid)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create user token: " + err.Error()})
 		return

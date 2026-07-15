@@ -1,4 +1,4 @@
-package chirik_config
+package chirick_config
 
 // server
 const (

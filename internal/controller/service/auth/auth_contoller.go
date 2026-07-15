@@ -37,7 +37,8 @@ func (ac *AuthController) Login(c *gin.Context) {
 		return
 	}
 
-	user, err := token.GetUserByUuidAndPass(ac.Controller.DI.DBDecorator.GDB(), ctr.UserUuid, ctr.Password)
+	ctx := c.Request.Context()
+	user, err := token.GetUserByUuidAndPass(ctx, ac.Controller.DI.DBDecorator.GDB(), ctr.UserUuid, ctr.Password)
 	if err != nil && errors.Is(err, token.UserNotFoundErr) {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 		return
@@ -46,7 +47,7 @@ func (ac *AuthController) Login(c *gin.Context) {
 		return
 	}
 
-	at, rt, err := service.CreateTokens(c.Request.Context(), *ac.Controller.DI.RedisDecorator, user.UserUuid)
+	at, rt, err := service.CreateTokens(ctx, *ac.Controller.DI.RedisDecorator, user.UserUuid)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create tokens"})
 		return
